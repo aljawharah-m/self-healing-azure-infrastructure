@@ -3,6 +3,7 @@ import urllib.request
 import requests
 from datetime import datetime, timedelta, timezone
 
+from azure.core.exceptions import HttpResponseError
 from azure.identity import DefaultAzureCredential
 from azure.mgmt.compute import ComputeManagementClient
 from azure.mgmt.monitor import MonitorManagementClient
@@ -122,15 +123,53 @@ def scale_vmss_directly(new_count):
         VMSS_NAME,
     )
 
+    current_capacity = int(vmss.sku.capacity)
+
+    if current_capacity >= new_count:
+        return {
+            "success": True,
+            "message": "Already at requested capacity",
+        }
+
     vmss.sku.capacity = new_count
 
-    poller = compute_client.virtual_machine_scale_sets.begin_create_or_update(
-        RESOURCE_GROUP,
-        VMSS_NAME,
-        vmss,
-    )
+    try:
+        poller = compute_client.virtual_machine_scale_sets.begin_create_or_update(
+            RESOURCE_GROUP,
+            VMSS_NAME,
+            vmss,
+        )
 
-    poller.result()
+        poller.result()
+
+        return {
+            "success": True,
+            "message": f"Scaled successfully to {new_count} instances",
+        }
+
+    except HttpResponseError as error:
+        error_text = str(error)
+
+        if (
+            "Total Regional Cores quota" in error_text
+            or "OperationNotAllowed" in error_text
+            or "quota" in error_text.lower()
+        ):
+            return {
+                "success": False,
+                "message": "Azure quota limit reached",
+            }
+
+        return {
+            "success": False,
+            "message": error_text,
+        }
+
+    except Exception as error:
+        return {
+            "success": False,
+            "message": str(error),
+        }
 
 
 def self_healing_decision(cpu_average, website_healthy, current_instances):
@@ -139,6 +178,12 @@ def self_healing_decision(cpu_average, website_healthy, current_instances):
 
     if cpu_average >= CPU_THRESHOLD and current_instances < MAX_INSTANCES:
         return current_instances + 1, "High CPU bottleneck detected"
+
+    if not website_healthy and current_instances >= MAX_INSTANCES:
+        return current_instances, "Website unhealthy, but maximum capacity reached"
+
+    if cpu_average >= CPU_THRESHOLD and current_instances >= MAX_INSTANCES:
+        return current_instances, "High CPU detected, but maximum capacity reached"
 
     return current_instances, "System healthy"
 
@@ -176,9 +221,24 @@ def main():
             f"Target instances: {desired_instances}"
         )
 
-        scale_vmss_directly(desired_instances)
+        result = scale_vmss_directly(desired_instances)
 
+        if not result["success"]:
+            print(f"Recovery failed: {result['message']}")
+
+            send_telegram_message(
+                f"⚠️ Recovery Failed\n"
+                f"Reason: {reason}\n"
+                f"Error: {result['message']}\n"
+                f"Current instances: {current_instances}\n"
+                f"Target instances: {desired_instances}"
+            )
+
+            return
+
+        print(result["message"])
         print("Verifying recovery...")
+
         recovered = check_website_health()
 
         if recovered:
@@ -197,6 +257,17 @@ def main():
                 f"Reason: {reason}\n"
                 f"Instances: {desired_instances}"
             )
+
+    elif "maximum capacity reached" in reason:
+        print("Incident detected, but maximum capacity has already been reached.")
+
+        send_telegram_message(
+            f"⚠️ Incident Detected But Max Capacity Reached\n"
+            f"Reason: {reason}\n"
+            f"CPU: {cpu_average:.2f}%\n"
+            f"Current instances: {current_instances}"
+        )
+
     else:
         print("System is healthy. No recovery required.")
 
