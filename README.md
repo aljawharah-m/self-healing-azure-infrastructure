@@ -113,6 +113,14 @@ Instead of stopping the workflow, I implemented error handling and notification 
 
 This helped demonstrate the importance of resiliency, observability, and graceful failure handling in cloud environments.
 
+
+## Project Objectives
+
+The main objective of this project was to explore how cloud infrastructure can automatically detect failures, notify administrators, and initiate recovery actions without manual intervention.
+
+The project combines Infrastructure as Code (Terraform), monitoring, alerting, and automation concepts commonly used in Cloud Operations and Site Reliability Engineering (SRE).
+
+
 ## Results
 
 ### Monitoring
