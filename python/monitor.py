@@ -171,6 +171,7 @@ def scale_vmss_directly(new_count):
             "message": str(error),
         }
 
+# Scale out when the website is unavailable or CPU stays high.
 
 def self_healing_decision(cpu_average, website_healthy, current_instances):
     if not website_healthy and current_instances < MAX_INSTANCES:
