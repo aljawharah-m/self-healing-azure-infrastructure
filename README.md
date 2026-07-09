@@ -2,8 +2,8 @@
 
 Al-Jawharah Mohammed Alsumayri
 
-Computer Engineering & Networks | Umm Al-Qura University
-Azure • Terraform • Infrastructure Automation
+Cloud Infrastructure & Automation
+Azure • Terraform • Python • SRE Concepts
 
 ## Overview
 
