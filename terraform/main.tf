@@ -39,6 +39,8 @@ resource "azurerm_network_security_group" "app" {
   location            = azurerm_resource_group.main.location
   resource_group_name = azurerm_resource_group.main.name
 
+  # Allow public HTTP traffic to reach the application through the load balancer.
+
   security_rule {
     name                       = "AllowHTTP"
     priority                   = 100
@@ -50,6 +52,8 @@ resource "azurerm_network_security_group" "app" {
     source_address_prefix      = "*"
     destination_address_prefix = "*"
   }
+
+  # Deny direct SSH access from the public internet for basic security hardening.
 
   security_rule {
     name                       = "DenySSHFromInternet"
@@ -147,6 +151,8 @@ resource "azurerm_linux_virtual_machine_scale_set" "app" {
       load_balancer_backend_address_pool_ids = [azurerm_lb_backend_address_pool.main.id]
     }
   }
+
+  # cloud-init installs and configures the web server on each VMSS instance.
 
   custom_data = base64encode(file("${path.module}/cloud-init.sh"))
 }
