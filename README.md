@@ -65,15 +65,15 @@ The infrastructure consists of an Azure Load Balancer connected to a Virtual Mac
 
 ## Workflow
 
-1. Continuously monitor website availability.
+1. Monitor website availability using HTTP health checks.
 2. Collect infrastructure metrics from Azure Monitor.
 3. Detect incidents and service degradation.
-4. Generate real-time Telegram alerts.
-5. Trigger self-healing recovery actions.
-6. Attempt VM Scale Set scaling when required.
-7. Handle cloud limitations and quota restrictions.
+4. Generate Telegram notifications.
+5. Trigger automated recovery actions.
+6. Attempt VMSS scaling when required.
+7. Handle quota limitations and recovery failures.
 8. Verify recovery success.
-9. Report final recovery status.
+9. Report final system status.
 
 ## Self-Healing Features
 
