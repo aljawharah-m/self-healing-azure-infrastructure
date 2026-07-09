@@ -237,7 +237,7 @@ Demonstrates a successful remediation workflow where Terraform automatically sca
 
 ## Contact
 
-Email: Aljohara_Alsemeri@outlook.sa
+Email: Aljawharah.Alsumayri@outlook.sa
 
 GitHub:
 https://github.com/aljawharah-m
