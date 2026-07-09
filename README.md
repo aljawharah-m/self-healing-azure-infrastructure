@@ -7,7 +7,7 @@ Azure • Terraform • Infrastructure Automation
 
 ## Overview
 
-This project demonstrates a self-healing cloud infrastructure built on Microsoft Azure using Terraform and Python.
+I built a self-healing Azure infrastructure using Terraform and Python to explore infrastructure automation, monitoring, and automated recovery techniques. The environment consists of a Virtual Machine Scale Set behind an Azure Load Balancer, with a Python monitoring service responsible for detecting failures and initiating recovery actions.
 
 The platform continuously monitors website availability and infrastructure health. Python handles monitoring, incident detection, automated recovery actions, and administrator notifications, while Terraform provisions and manages the Azure infrastructure.
 
@@ -91,6 +91,27 @@ The platform attempts recovery actions without human intervention.
 
 ### Failure Handling
 Azure quota limitations and recovery failures are handled gracefully and reported automatically.
+
+## What I Learned
+
+Through this project I gained hands-on experience with:
+
+- Terraform Infrastructure as Code (IaC)
+- Azure Virtual Machine Scale Sets (VMSS)
+- Azure Load Balancer configuration
+- Azure Monitor metrics collection
+- Python automation and Azure SDK integration
+- Failure detection and automated remediation workflows
+- Handling cloud platform limitations and quota restrictions
+- Building self-healing infrastructure concepts inspired by SRE practices
+
+## Challenges
+
+One of the main challenges during this project was Azure regional quota limitations, which prevented automated VM Scale Set scaling during recovery testing.
+
+Instead of stopping the workflow, I implemented error handling and notification logic to detect the failure, report it through Telegram, and keep the monitoring process running without interruption.
+
+This helped demonstrate the importance of resiliency, observability, and graceful failure handling in cloud environments.
 
 ## Results
 
